@@ -36,7 +36,29 @@ def get_request(url, **kwargs):
 
 # Create a `post_request` to make HTTP POST requests
 # e.g., response = requests.post(url, params=kwargs, json=payload)
+def post_request(url, json_payload, **kwargs):
 
+    requests.post(url, params=kwargs, json=json_payload)
+    print(kwargs)
+    print("POST from {} ".format(url))
+    try:
+
+        if 'api_key' in kwargs:
+            params = kwargs['params']
+            response = requests.post(url, params=params, headers={'Content-Type': 'application/json'},
+                                    auth=HTTPBasicAuth('apikey', kwargs['api_key']))
+        else:
+            # Call get method of requests library with URL and parameters
+            response = requests.get(url, headers={'Content-Type': 'application/json'},
+                                        params=kwargs)
+
+    except:
+        # If any error occurs
+        print("Network exception occurred")
+    status_code = response.status_code
+    print("With status {} ".format(status_code))
+    json_data = json.loads(response.text)
+    return json_data
 
 # Create a get_dealers_from_cf method to get dealers from a cloud function
 # def get_dealers_from_cf(url, **kwargs):
@@ -65,7 +87,7 @@ def get_dealers_from_cf(url, **kwargs):
     return results
 
 
-def get_dealers_by_id_from_cf(url, **kwargs):
+def get_dealer_by_id_from_cf(url, **kwargs):
     dealer_id = kwargs['dealer_id']
     results = []
     # Call get_request with a URL parameter
@@ -145,8 +167,3 @@ def analyze_review_sentiments(text):
     return(label) 
 
 
-def post_request(url, json_payload, **kwargs):
-    
-    json_payload["review"] = review
-
-    requests.post(url, params=kwargs, json=json_payload)
