@@ -136,10 +136,10 @@ def get_dealer_by_id_from_cf(url, dealer_id):
 # def get_dealer_by_id_from_cf(url, dealerId):
 # - Call get_request() with specified arguments
 # - Parse JSON results into a DealerView object list
-def get_dealer_reviews_from_cf(url, dealerId):
+def get_dealer_reviews_from_cf(url, dealer_id):
     results = []
     # Call get_request with a URL parameter
-    json_result = get_request(url, id=dealerId)
+    json_result = get_request(url, id=dealer_id)
     if json_result:
         # Get the row list in JSON as dealers
         #dealers = json_result["rows"]

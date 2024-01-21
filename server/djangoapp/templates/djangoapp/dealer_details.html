@@ -8,11 +8,36 @@
 </head>
 
     <body>
-
+    
     <!--Add a nav bar here -->
-
+    {% include "./navbar.html" %}
     <!-- Add reviews as cards -->
+    <div class="container">
+        <h3 class = "mt-3">Reviews for {{ dealer.full_name }}</h3>
 
+    {% if user.is_authenticated %}
+    <a class = "mt-2" href="{% url 'djangoapp:add_review' dealer.id %}">Click here to add your own a review</a>
+    {% endif %}
+
+    <div class="card-columns mt-5">
+        {% for review in reviews_list %}
+            <div class="card">
+                {% if review.sentiment == "positive" %}
+                    <img class="card-img-left mt-2 ml-2" src="{{MEDIA_URL}}/emoji/positive.png" width="36px" height="36px">
+                {% elif review.sentiment == "negative" %}
+                    <img class="card-img-left mt-2 ml-2" src="{{MEDIA_URL}}/emoji/negative.png" width="36px" height="36px">
+                {% else %}
+                    <img class="card-img-left mt-2 ml-2" src="{{MEDIA_URL}}/emoji/neutral.png" width="36px" height="36px">
+                {% endif %}
+                <div class="card-body">
+                    <h4 class="card-title">{{review.car_make}}, {{review.car_model}}</h4>
+                    <h4 class="card-title">{{review.car_year}}</h4>
+                    <p class="card-text">{{review.review}}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
     </body>
 
 </html>
