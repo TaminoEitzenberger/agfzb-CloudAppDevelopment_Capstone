@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
-from .models import CarDealer
-from .restapis import get_dealers_from_cf, get_dealer_by_id_from_cf, get_dealer_reviews_from_cf
+from .models import CarDealer, CarModel
+from .restapis import get_dealers_from_cf, get_dealer_by_id_from_cf, get_dealer_reviews_from_cf, post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
@@ -110,11 +110,11 @@ def get_dealerships(request):
         # Return a list of dealer short name
         return HttpResponse(dealer_names)
 
-def get_dealerships_by_id(request, dealer_id):
+def get_dealer_by_id(request, dealer_id):
     if request.method == "GET":
         url = "https://tamino-3000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
         # Get dealers from the URL
-        dealerships = get_dealers_by_id_from_cf(url, dealer_id=dealer_id)
+        dealerships = get_dealer_by_id_from_cf(url, dealer_id=dealer_id)
         
         return HttpResponse(dealerships)
 
@@ -133,10 +133,10 @@ def get_dealer_details(request, dealer_id):
 # Create a `add_review` view to submit a review
 # def add_review(request, dealer_id):
 # ...
-def add_review(request, id):
+def add_review(request, dealer_id):
     context = {}
     dealer_url = "https://tamino-3000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
-    dealer = get_dealer_by_id_from_cf(dealer_url, id=id)
+    dealer = get_dealer_by_id_from_cf(dealer_url, dealer_id=dealer_id)
     context["dealer"] = dealer
     if request.method == 'GET':
         # Get cars for the dealer
@@ -154,8 +154,8 @@ def add_review(request, id):
             car = CarModel.objects.get(pk=car_id)
             payload["time"] = datetime.utcnow().isoformat()
             payload["name"] = username
-            payload["dealership"] = id
-            payload["id"] = id
+            payload["dealership"] = dealer_id
+            payload["id"] = dealer_id
             payload["review"] = request.POST["content"]
             payload["purchase"] = False
             if "purchasecheck" in request.POST:
@@ -168,7 +168,7 @@ def add_review(request, id):
 
             new_payload = {}
             new_payload["review"] = payload
-            review_post_url = "YOUR-CLOUD-ENDPOINT-URL/dealership-package/post_review"
+            review_post_url = "https://tamino-5000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/get_review"
             post_request(review_post_url, new_payload, id=id)
         return redirect("djangoapp:dealer_details", id=id)
 
